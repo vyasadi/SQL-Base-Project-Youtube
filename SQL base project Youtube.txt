@@ -1,0 +1,68 @@
+
+/*Total cost of google campaigns for all markets*/
+select Campaign,sum(cost) from cricket.sqlsample
+where Campaign='Google';
+
+/*Find CPC value per audience*/
+select audience,sum(cost)/sum(clicks) from cricket.sqlsample
+group by audience;
+
+/*Display markets with total clicks greater than 500*/
+select market,sum(clicks) from cricket.sqlsample
+group by market
+having sum(clicks)>500;
+
+/*Display a new column above threshold if cost>20 else below*/
+
+select *, case when cost>20 then 'abovethreshold' else 'below'
+end as costnew from cricket.sqlsample;
+
+/*Display the agent with total fees in descending order*/
+select b.Marketing_agent,sum(a.fees)
+from cricket.sqlsample a
+inner join cricket.agent b on 
+a.Market=b.market
+group by b.marketing_agent
+order by sum(a.fees) desc;
+
+/*Display the total impressions and market value only for facebook
+camapigns with impressions total>1000 and sort by Market*/
+select Market,sum(Impressions)
+from cricket.sqlsample
+where campaign='Facebook'
+group by Market
+having sum(Impressions)>1000
+order by Market
+
+
+/*Which month and year combination had the highest number of orders*/
+select date_format(date_ordered,'%Y%m'), count(distinct ordernum)
+from cricket.sqlvideo
+group by date_format(date_ordered,'%Y%m')
+order by count(distinct ordernum) desc;
+
+
+/*What is the % of items ordered through direct channel*/
+select sum(if(channel='direct',1,0))/count(*)
+ from cricket.sqlvideo;
+
+
+
+/*How many distinct users have a name starting with the number 1*/
+select count(distinct user) from cricket.sqlvideo
+where user like '1%' ;
+
+
+
+/*Find ratio of finished to direct items for social and direct channel
+and display separately*/
+select channel,
+sum(if(orderstatus='finished',1,0))/sum(if(orderstatus='cancelled',1,0))
+from cricket.sqlvideo
+where channel='social'
+union
+select channel,
+sum(if(orderstatus='finished',1,0))/sum(if(orderstatus='cancelled',1,0))
+from cricket.sqlvideo
+where channel='direct'
+
